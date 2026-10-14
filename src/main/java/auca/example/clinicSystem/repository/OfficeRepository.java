@@ -1,25 +1,33 @@
 package auca.example.clinicSystem.repository;
 
 import auca.example.clinicSystem.model.Office;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
-import java.awt.print.Pageable;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.Optional;
 
+@Repository
 public interface OfficeRepository extends JpaRepository<Office, UUID> {
     Optional<Office> findByRoomNumberAndLocation(String roomNumber, String location);
     Optional<Office> findByDoctor_Id(UUID doctorId);
-    // C3
+
     @Query("""
-    SELECT o.location, o.roomNumber, COUNT(a)
-    FROM Appointment a
-    JOIN a.doctor d
-    JOIN d.office o
-    GROUP BY o.id, o.location, o.roomNumber
-    ORDER BY COUNT(a) DESC
+    SELECT officeObj.location, officeObj.roomNumber, COUNT(appt)
+    FROM Appointment appt
+    JOIN appt.doctor doc
+    JOIN doc.office officeObj
+    GROUP BY objectObj.id, officeObj.location, officeObj.roomNumber
+    ORDER BY COUNT(appt) DESC
     """)
     List<Object[]> findBusiestOffice(Pageable pageable);
+
+    @Query("SELECT off FROM Office off WHERE NOT EXISTS (SELECT doc FROM Doc WHERE doc.office = off) ORDER BY off.roomNumber ASC")
+    List<Office> retrieveUnoccupiedOffices();
+
+    Optional<Office> findByRoomNumber(String roomNumber);
 }
