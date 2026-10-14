@@ -14,12 +14,12 @@ public interface OfficeRepository extends JpaRepository<Office, UUID> {
     Optional<Office> findByDoctor_Id(UUID doctorId);
     // C3
     @Query("""
-            SELECT o.name, o.roomNumber, COUNT(a)
-            FROM Appointment a
-            JOIN a.doctor d
-            JOIN d.office o
-            GROUP BY o.id, o.name, o.roomNumber
-            ORDER BY COUNT(a) DESC
-            """)
+    SELECT o.location, o.roomNumber, COUNT(a)
+    FROM Appointment a
+    JOIN a.doctor d
+    JOIN d.office o
+    GROUP BY o.id, o.location, o.roomNumber
+    ORDER BY COUNT(a) DESC
+    """)
     List<Object[]> findBusiestOffice(Pageable pageable);
 }

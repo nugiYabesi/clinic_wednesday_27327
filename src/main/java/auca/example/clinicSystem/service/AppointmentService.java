@@ -31,7 +31,6 @@ public class AppointmentService {
         this.doctors = doctors;
     }
 
-    // A4 / existing save endpoint
     public Appointment save(Appointment appointment) {
 
         Doctor doctor = appointment.getDoctor();
@@ -60,7 +59,7 @@ public class AppointmentService {
         return appointments.save(appointment);
     }
 
-    // A2
+
     @Transactional(readOnly = true)
     public List<Appointment> getByStatus(
             AppointmentStatus status
@@ -69,7 +68,7 @@ public class AppointmentService {
         return appointments.findByStatusOrderByScheduledAtAsc(status);
     }
 
-    // A3
+
     @Transactional(readOnly = true)
     public List<Appointment> getBetween(
             LocalDate start,
@@ -87,14 +86,14 @@ public class AppointmentService {
         );
     }
 
-    // C1
+
     @Transactional(readOnly = true)
     public List<Object[]> getStatsByStatus() {
 
         return appointments.countAppointmentsByStatus();
     }
 
-    // C4
+
     public String cancelDay(
             UUID doctorId,
             LocalDate date

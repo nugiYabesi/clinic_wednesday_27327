@@ -16,13 +16,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
             AppointmentStatus status
     );
 
-    // A3
     List<Appointment> findByScheduledAtBetweenOrderByScheduledAtAsc(
             LocalDateTime start,
             LocalDateTime end
     );
 
-    // A4
     boolean existsByDoctorAndScheduledAtBetweenAndStatusNot(
             auca.example.clinicSystem.model.Doctor doctor,
             LocalDateTime start,
@@ -30,7 +28,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
             AppointmentStatus status
     );
 
-    // C1
+
     @Query("""
             SELECT a.status, COUNT(a)
             FROM Appointment a
@@ -38,7 +36,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
             """)
     List<Object[]> countAppointmentsByStatus();
 
-    // C4
     @Modifying
     @Query("""
             UPDATE Appointment a
@@ -54,7 +51,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
             @Param("end") LocalDateTime end
     );
 
-    // Bonus
     @Modifying
     @Query("""
             DELETE FROM Appointment a
@@ -64,4 +60,5 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
     int deleteCancelledBefore(
             @Param("before") LocalDateTime before
     );
+
 }

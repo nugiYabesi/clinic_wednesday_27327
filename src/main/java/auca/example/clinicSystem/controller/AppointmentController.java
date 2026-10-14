@@ -20,7 +20,7 @@ public class AppointmentController {
         this.appointments = appointments;
     }
 
-    // A4
+
     @PostMapping("/save")
     public Appointment save(
             @RequestBody Appointment appointment
@@ -28,7 +28,7 @@ public class AppointmentController {
         return appointments.save(appointment);
     }
 
-    // A2
+
     @GetMapping("/by-status")
     public List<Appointment> getByStatus(
             @RequestParam AppointmentStatus status
@@ -36,7 +36,7 @@ public class AppointmentController {
         return appointments.getByStatus(status);
     }
 
-    // A3
+
     @GetMapping("/between")
     public List<Appointment> getBetween(
             @RequestParam String start,
@@ -49,14 +49,14 @@ public class AppointmentController {
         return appointments.getBetween(startDate, endDate);
     }
 
-    // C1
+
     @GetMapping("/stats/by-status")
     public List<Object[]> getStatsByStatus() {
 
         return appointments.getStatsByStatus();
     }
 
-    // C4
+
     @PatchMapping("/cancel-day")
     public String cancelDay(
             @RequestParam UUID doctorId,
