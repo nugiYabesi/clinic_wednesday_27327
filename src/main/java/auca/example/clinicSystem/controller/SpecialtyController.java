@@ -17,7 +17,7 @@ public class SpecialtyController {
         this.specialties = specialties;
     }
 
-    // B3
+    
     @GetMapping("/unused")
     public List<Specialty> getUnusedSpecialties() {
 

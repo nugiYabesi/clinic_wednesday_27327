@@ -22,7 +22,7 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
             @Param("name") String name
     );
 
-    // B2
+    
     @Query("""
             SELECT d
             FROM Doctor d
@@ -31,7 +31,7 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
             """)
     List<Doctor> findDoctorsWithoutOffice();
 
-    // B4
+
     @Query("""
             SELECT DISTINCT a.patient
             FROM Appointment a
