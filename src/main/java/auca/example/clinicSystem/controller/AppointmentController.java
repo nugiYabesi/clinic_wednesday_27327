@@ -17,6 +17,7 @@ public class AppointmentController {
     private final AppointmentService appointments;
 
     public AppointmentController(AppointmentService appointments) {
+
         this.appointments = appointments;
     }
 
@@ -26,6 +27,24 @@ public class AppointmentController {
             @RequestBody Appointment appointment
     ) {
         return appointments.save(appointment);
+    }
+
+
+    @PatchMapping("/{id}/status")
+    public String updateStatus(
+            @PathVariable UUID id,
+            @RequestParam AppointmentStatus Status
+    ) {
+        return appointments.updateStatus(id, Status);
+    }
+
+    @PatchMapping("/{id}/reschedule")
+    public String rescheduleAppointment(
+            @PathVariable UUID id,
+            @RequestParam String newDate
+    ){
+        LocalDate parseDate = LocalDate.parse(newDate);
+        return appointments.reschedule(id, parsedDate);
     }
 
 
