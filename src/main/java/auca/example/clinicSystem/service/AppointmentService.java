@@ -33,12 +33,23 @@ public class AppointmentService {
 
     public Appointment save(Appointment appointment) {
 
+        LocalDate apptDate = appointment.getScheduledAt().toLocalDate();
+        if (apptDate.isBefore(LocalDate.now())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Appointment date can not be in the past"
+            );
+        }
+
+        appointment.setStatus(AppointmentStatus.SCHEDULED);
+
         Doctor doctor = appointment.getDoctor();
+        if (doctor == null) || doctor.getId() == null) {
+           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Doctor is required");
+        }
 
-        LocalDate date = appointment.getScheduledAt().toLocalDate();
-
-        LocalDateTime start = date.atStartOfDay();
-        LocalDateTime end = date.plusDays(1).atStartOfDay();
+        LocalDateTime start = apptDate.atStartOfDay();
+        LocalDateTime end = apptDate.plusDays(1).atStartOfDay();
 
         boolean alreadyBooked =
                 appointments.existsByDoctorAndScheduledAtBetweenAndStatusNot(
@@ -60,6 +71,80 @@ public class AppointmentService {
     }
 
 
+    public String updateStatus(UUID id, AppointmentStatus newStatus) {
+        Appointment appt = appointments.findBy(id)
+                .orElseThrow(() -> new  ResponseStatusException(HttpStatus.NOT_FOUND, " The appointment with that id does not exist"));
+
+        AppointmentStatus currentStatus = appt.getStatus();
+
+        boolean valid = false;
+        if (currentStatus == AppointmentStatus.SCHEDULED) {
+            if (newStatus == AppointmentStatus.CONFIRMED || newStatus == AppointmentStatus.CANCELLED) {
+                valid = true;
+            }
+
+        } else if (currentStatus == AppointmentStatus.CONFIRMED) {
+            if (newStatus == AppointmentStatus.COMPLETED || newStatus == AppointmentStatus.CANCELLED) {
+                valid = true;
+            }
+
+        } else if (currentStatus == AppointmentStatus.COMPLETED) {
+            if (newStatus == AppointmentStatus.CANCELLED) {
+                valid = true;
+            }
+
+        }
+        if (!valid) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Cannot change status from " + currentStatus + " to " + newStatus
+            );
+        }
+
+        appt.setStatus(newStatus);
+        appointments.save(appt);
+        return "Appointment status updated successfully";
+    }
+
+
+    public String reschedule(UUID id, LocalDate newDate) {
+        Appointment appt = appointments.findById(id)
+                .orElseThrow(() -> new  ResponseStatusException(HttpStatus.NOT_FOUND, " The appointment with that id does not exist"));
+
+        if (appt.getStatus() == AppointmentStatus.COMPLETED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A COMPLETED appointment cannot be rescheduled");
+        }
+        if (appt.getStatus() == AppointmentStatus.CANCELLED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A CANCELLED appointment cannot be rescheduled");
+        }
+        if (newDate.isBefore(LocalDate.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Appointment date cannot be in the past");
+        }
+
+        Doctor doctor = appt.getDoctor();
+        LocalDateTime start = newDate.atStartOfDay();
+        LocalDateTime end = newDate.plusDays(1).atStartOfDay();
+
+        boolean alreadyBooked =
+                appointments.existsByDoctorAndScheduledAtBetweenAndStatusNot(
+                        doctor,
+                        start,
+                        end,
+                        AppointmentStatus.CANCELLED
+                );
+
+        if (alreadyBooked) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Doctor is already booked on that date");
+        }
+
+        appt.setScheduledAt(newDate.atStartOfDay());
+        appt.setStatus(AppointmentStatus.SCHEDULED);
+        appointments.save(appt);
+
+        return "Appointment rescheduled successfully";
+    }
+
+
     @Transactional(readOnly = true)
     public List<Appointment> getByStatus(
             AppointmentStatus status
@@ -67,6 +152,7 @@ public class AppointmentService {
 
         return appointments.findByStatusOrderByScheduledAtAsc(status);
     }
+
 
 
     @Transactional(readOnly = true)
@@ -118,8 +204,6 @@ public class AppointmentService {
 
         return count + " appointments cancelled";
     }
-
-    // Bonus
     public String deleteCancelledBefore(LocalDate date) {
 
         LocalDateTime before = date.atStartOfDay();
