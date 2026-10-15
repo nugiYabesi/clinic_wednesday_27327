@@ -40,4 +40,8 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
     List<auca.example.clinicSystem.model.Patient> findPatientsOfDoctor(
             @Param("doctorId") UUID doctorId
     );
+
+
+    @Query("SELECT d FROM Doctor d WHERE LOWER(d.name) LIKE LOWER(CONCAT('%', :name, '%')) ORDER BY d.name ASC")
+        List<Doctor> searchByNameIgnorecase(@Param("name") String name);
 }

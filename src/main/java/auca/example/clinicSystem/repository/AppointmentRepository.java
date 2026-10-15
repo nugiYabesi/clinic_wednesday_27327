@@ -61,4 +61,17 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
             @Param("before") LocalDateTime before
     );
 
+    List<Appointment> findByDoctorIdAndScheduledAtBetweenAndStatusNot(
+            UUID doctorId,
+            LocalDateTime start,
+            LocalDateTime end,
+            AppointmentStatus status
+    );
+
+    List<Appointment> findByPatientSsNumberAndScheduledAtGreaterThanEqualAndStatusInOrderByScheduledAtAsc(
+            String ssNumber,
+            LocalDateTime date,
+            List<AppointmentStatus> statuses
+    );
+
 }
