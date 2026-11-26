@@ -1,8 +1,27 @@
 # Clinic Wednesday
 
+This repository contains the Spring Boot backend and React frontend in separate folders.
+
+## Backend
+
+The Spring Boot application is in `backend/`. From that folder, start it with:
+
+```bash
+./mvnw spring-boot:run
+```
+
+On Windows, use `mvnw.cmd spring-boot:run`. The frontend expects the backend at `http://localhost:8081`.
+
 ## Frontend
 
-The React frontend is in the `frontend` folder. Start it with `npm install` followed by `npm run dev` from that folder. The offices page loads office records from the backend at `http://localhost:8081/api/offices` and supports searching by office name or number and deleting records.
+The React frontend is in `frontend/`. From that folder, install dependencies and start Vite:
+
+```bash
+npm install
+npm run dev
+```
+
+The offices page supports searching by office name or number and deleting records.
 
 ### Available Offices
 
